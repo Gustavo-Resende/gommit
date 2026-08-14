@@ -1,6 +1,7 @@
 # Credenciais — o token NUNCA entra no versionamento
 .env
 .env.*
+!.env.example
 *.token
 config.local.*
 

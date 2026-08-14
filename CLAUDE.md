@@ -8,8 +8,17 @@ o objetivo é motivação visual pra codar todo dia.
 
 **Este projeto é, antes de tudo, um exercício de fundamentos em Go.** Não é
 pra ser resolvido do jeito mais rápido possível — é pra ir testando decisões
-de arquitetura, errando, refatorando, e ganhando repertório. Não adianta me
-dar (Claude) a solução pronta; o valor está em construir, mesmo que devagar.
+de arquitetura, errando, refatorando, e ganhando repertório.
+
+Pode (Claude) entregar o código pronto — mas **sempre explicado**. O valor
+não está em digitar o código, está em entender o que ele faz e por que foi
+escrito assim. Então, ao implementar:
+
+- Diga o que cada parte faz e qual decisão de design está por trás dela.
+- Aponte o idioma de Go em uso (interface no consumidor, `ctx` como primeiro
+  parâmetro, `defer`, canal só-de-leitura, etc.) e por que ele é o padrão.
+- Mostre as alternativas descartadas quando a escolha não for óbvia.
+- Sinalize as armadilhas — o que quebra se mudar, o que parece certo e não é.
 
 Este projeto também serve de terreno de treino pro app centralizador de
 notificações (Go + SQLite + Wails) que está nos planos — o padrão de
