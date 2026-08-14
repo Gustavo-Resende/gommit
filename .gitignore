@@ -1,0 +1,35 @@
+# Credenciais — o token NUNCA entra no versionamento
+.env
+.env.*
+*.token
+config.local.*
+
+# Binários e artefatos de build
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/build/bin/
+/gommit
+/gommit.exe
+
+# Testes
+*.test
+*.out
+coverage.*
+
+# Go workspace
+go.work
+go.work.sum
+
+# Frontend (Wails)
+node_modules/
+frontend/dist/
+
+# IDE / SO
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
