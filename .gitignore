@@ -26,7 +26,11 @@ go.work.sum
 
 # Frontend (Wails)
 node_modules/
-frontend/dist/
+
+# Bindings gerados pelo `wails build`/`wails dev` a partir dos metodos ligados
+# em app.go. Sao derivados do codigo Go, entao versiona-los so criaria conflito
+# e a chance de o commitado divergir do gerado.
+frontend/wailsjs/
 
 # IDE / SO
 .vscode/

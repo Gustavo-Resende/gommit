@@ -1,0 +1,292 @@
+/*
+  As cores são as mesmas do pacote render, que por sua vez copiou as do GitHub.
+  Ficam em custom properties para o JS indexar por nível: var(--nivel-3) sai de
+  uma template string, sem tabela de cor duplicada no JavaScript.
+*/
+:root {
+  --fundo: 13 17 23;
+  --texto: #7d8590;
+  --texto-forte: #e6edf3;
+  --erro: #f85149;
+  --borda: #30363d;
+
+  --nivel-0: #2d333b;
+  --nivel-1: #0e4429;
+  --nivel-2: #006d32;
+  --nivel-3: #26a641;
+  --nivel-4: #39d353;
+
+  --celula: 11px;
+  --gap: 3px;
+
+  /* Alpha do fundo da janela. O painel de ajustes mexe só nisto. */
+  --opacidade: 1;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  /* Transparente de verdade: quem pinta é o #janela. Depende de
+     WebviewIsTransparent + WindowIsTranslucent estarem ligados no Go — sem
+     isso o alpha não atravessa e o resultado é um retângulo preto. */
+  background: transparent;
+  color: var(--texto);
+  font: 11px/1.4 "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+#janela {
+  position: relative;
+  height: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  /* Sintaxe de espaço + barra: rgb(13 17 23 / 0.6). É o que permite o alpha
+     vir de uma variável — em rgba(13,17,23,var(--x)) o valor entraria como
+     parte da lista de argumentos e quebraria em alguns motores. */
+  background: rgb(var(--fundo) / var(--opacidade));
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.octocat {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--texto-forte);
+}
+
+#login {
+  color: var(--texto-forte);
+  font-weight: 600;
+}
+
+#total {
+  margin-right: auto;
+}
+
+#status {
+  color: var(--erro);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 340px;
+}
+
+/* ---------- botões da barra ---------- */
+
+#acoes {
+  display: flex;
+  gap: 2px;
+  flex: none;
+}
+
+#acoes button {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 20px;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+#acoes button:hover {
+  background: #21262d;
+  color: var(--texto-forte);
+}
+
+#acoes button[aria-expanded="true"] {
+  background: #21262d;
+  color: var(--texto-forte);
+}
+
+#acoes svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+
+/* Ícones desenhados por área preenchida (a engrenagem) em vez de por traço. */
+#acoes svg.preenchido {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ---------- painel de ajustes ---------- */
+
+/*
+  Absoluto para flutuar sobre o grid. A janela é de altura fixa e não
+  redimensionável: no fluxo normal, abrir o painel empurraria a última linha do
+  calendário para fora.
+*/
+#painel {
+  position: absolute;
+  top: 34px;
+  right: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  /* Opaco de propósito: um painel de controle que fica translúcido junto com o
+     resto vira ilegível justamente quando você está baixando a opacidade. */
+  background: #161b22;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 0.4);
+}
+
+#painel[hidden] {
+  display: none;
+}
+
+#opacidade {
+  width: 110px;
+  accent-color: var(--nivel-4);
+  cursor: pointer;
+}
+
+#opacidade-valor {
+  width: 30px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- grid ---------- */
+
+/* A régua de meses e o grid compartilham a mesma métrica de coluna, e é isso
+   que mantém os dois alinhados. O margin-left compensa a coluna de rótulos. */
+#months {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc(var(--celula) + var(--gap));
+  margin-left: calc(24px + var(--gap));
+  height: 13px;
+}
+
+#months span {
+  grid-row: 1;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+#board {
+  display: flex;
+  gap: var(--gap);
+}
+
+#labels {
+  display: grid;
+  grid-template-rows: repeat(7, calc(var(--celula) + var(--gap)));
+  width: 24px;
+  font-size: 9px;
+}
+
+/* Só três rótulos, nas linhas 2, 4 e 6 — é o que o GitHub faz, e é o que cabe
+   sem os textos se encostarem em células de 11px. */
+#labels span:nth-child(1) { grid-row: 2; }
+#labels span:nth-child(2) { grid-row: 4; }
+#labels span:nth-child(3) { grid-row: 6; }
+
+/*
+  O coração do layout. grid-auto-flow: column faz cada semana ser uma coluna, e
+  as sete linhas fixas são os dias da semana.
+
+  É a mesma transposição que o render.Grid faz em Go (dado vem em semanas
+  contendo dias; a tela precisa de dias da semana atravessando o ano), só que
+  aqui ela é declarativa: cada célula diz em que linha entra com grid-row, e o
+  buraco das semanas parciais simplesmente não é preenchido. Sem sentinela,
+  sem matriz pré-alocada.
+*/
+#grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, var(--celula));
+  grid-auto-columns: var(--celula);
+  gap: var(--gap);
+}
+
+.cell {
+  width: var(--celula);
+  height: var(--celula);
+  border-radius: 2px;
+  background: var(--nivel-0);
+}
+
+.cell:hover {
+  outline: 1px solid var(--texto-forte);
+  outline-offset: 1px;
+}
+
+/* O contorno marca o dia de hoje mesmo quando ele ainda está apagado — é o
+   quadrado que a pessoa quer ver acender. */
+.today {
+  outline: 1px solid var(--texto);
+  outline-offset: 1px;
+}
+
+.pulse {
+  animation: pulse 900ms ease-out 2;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1);   filter: brightness(1); }
+  35%  { transform: scale(1.7); filter: brightness(2.2); }
+  100% { transform: scale(1);   filter: brightness(1); }
+}
+
+/* ---------- tooltip ---------- */
+
+/*
+  Tooltip próprio em vez do title="" nativo por dois motivos: o nativo demora
+  quase um segundo para aparecer e sai com a cara do sistema, quebrando o visual
+  do widget.
+
+  pointer-events: none é essencial — sem isso o tooltip aparece sob o cursor,
+  rouba o hover da célula, o tooltip some, o hover volta, e ele fica piscando
+  para sempre.
+*/
+#tooltip {
+  position: fixed;
+  z-index: 10;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #1c2128;
+  border: 1px solid var(--borda);
+  color: var(--texto-forte);
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.5);
+}
+
+#tooltip[hidden] {
+  display: none;
+}
+
+#tooltip b {
+  font-weight: 600;
+}
+
+#tooltip span {
+  color: var(--texto);
+}

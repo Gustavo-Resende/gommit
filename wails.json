@@ -1,0 +1,14 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "gommit",
+  "outputfilename": "gommit",
+  "frontend:install": "",
+  "frontend:build": "",
+  "author": {
+    "name": "Gustavo Resende"
+  },
+  "info": {
+    "productName": "gommit",
+    "comments": "Widget do grid de contribuicoes do GitHub"
+  }
+}
