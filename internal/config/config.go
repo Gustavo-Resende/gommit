@@ -11,13 +11,69 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 )
+
+// envFileName é o nome procurado por ResolveEnvFile.
+const envFileName = ".env"
 
 // Config são as credenciais que o app precisa para subir.
 type Config struct {
 	Token string
 	Login string
+}
+
+// ResolveEnvFile devolve o caminho do .env a usar, procurando em três lugares.
+//
+// O problema que ela resolve: um caminho relativo é resolvido a partir do
+// diretório de onde o processo foi iniciado, não do diretório do executável.
+// Com `go run` na raiz do repositório os dois coincidem e a diferença não
+// aparece — mas um widget é aberto por atalho, e aí o diretório atual é
+// qualquer um (o C:\Windows\System32 da vida). O .env sumiria e o app subiria
+// reclamando de credencial faltando.
+//
+// A ordem é deliberada:
+//
+//  1. Diretório atual — vence tudo, para dar para rodar um build apontando
+//     para outro .env sem mexer em mais nada.
+//  2. Diretório do executável — o .env viaja junto do .exe.
+//  3. %AppData%\gommit\.env (ou o equivalente do SO) — o lugar onde a
+//     credencial fica de uma vez e sobrevive a recompilar o binário.
+//
+// Não devolve erro: se nada for encontrado, devolve o nome simples e deixa o
+// Load seguir. Arquivo ausente não é falha — as variáveis podem vir prontas do
+// ambiente, que é a fonte de verdade.
+func ResolveEnvFile() string {
+	if _, err := os.Stat(envFileName); err == nil {
+		return envFileName
+	}
+
+	if exe, err := os.Executable(); err == nil {
+		// EvalSymlinks porque o os.Executable pode devolver um link: em
+		// `go run` o binário vive num diretório temporário, e no Linux é comum
+		// o executável estar linkado. Sem resolver, o Dir apontaria para o
+		// lugar errado.
+		if resolved, err := filepath.EvalSymlinks(exe); err == nil {
+			exe = resolved
+		}
+		if p := filepath.Join(filepath.Dir(exe), envFileName); existe(p) {
+			return p
+		}
+	}
+
+	if dir, err := os.UserConfigDir(); err == nil {
+		if p := filepath.Join(dir, "gommit", envFileName); existe(p) {
+			return p
+		}
+	}
+
+	return envFileName
+}
+
+func existe(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }
 
 // Load carrega o arquivo envFile (quando existe) e devolve as credenciais.
