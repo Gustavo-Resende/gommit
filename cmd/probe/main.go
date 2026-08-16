@@ -1,7 +1,14 @@
-// Command gommit é, por enquanto, uma sonda de terminal: liga o cliente ao
-// poller e imprime cada atualização. Quando a etapa da GUI chegar, este
-// arquivo vira o entrypoint do Wails e os pacotes internos continuam iguais —
-// é justamente por isso que nenhum deles sabe que existe terminal.
+// Command probe é a sonda de terminal do gommit: liga o cliente ao poller e
+// imprime cada atualização.
+//
+// Ela não é o app — o app é a janela, em main.go na raiz. Isto aqui existe para
+// depurar o backend sem GUI nenhuma no caminho: quando a janela não abrir ou
+// abrir vazia, rodar a sonda responde na hora se o problema é o token, a API, o
+// poller — ou o webview.
+//
+// Note que ela importa exatamente os mesmos pacotes que a janela importa, e
+// nenhum deles precisou mudar para servir aos dois. É essa a prova de que a
+// fronteira está no lugar certo.
 package main
 
 import (
@@ -19,14 +26,8 @@ import (
 
 const pollInterval = time.Minute
 
-// envFile é relativo ao diretório de onde o processo foi iniciado, não ao do
-// executável. Com `go run .` na raiz do repositório dá na mesma; quando isto
-// virar um .exe de widget aberto por atalho, vai ser preciso resolver o
-// caminho a partir do os.Executable().
-const envFile = ".env"
-
 func main() {
-	cfg, err := config.Load(envFile)
+	cfg, err := config.Load(config.ResolveEnvFile())
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
