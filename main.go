@@ -2,8 +2,8 @@
 // grid de contribuições do GitHub.
 //
 // Este arquivo é a única parte do app que conhece o Wails. Os pacotes internal/
-// não mudaram nada para a janela existir — a mesma pilha alimenta a sonda de
-// terminal em cmd/probe.
+// não mudaram nada para a janela existir — a mesma pilha (config → github →
+// poller) alimenta a sonda de terminal em cmd/probe.
 package main
 
 import (
