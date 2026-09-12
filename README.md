@@ -283,8 +283,3 @@ de cada quadradinho.
 - [ ] Lembrar a posição da janela entre execuções
 - [ ] Tratamento de rate limit
 - [ ] Distribuição (instalador / início automático com o Windows)
-
-## Design visual
-
-Prototipado à parte no Claude Design. Layout e estética não são tratados nesta
-documentação.
