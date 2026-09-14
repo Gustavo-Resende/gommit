@@ -232,15 +232,11 @@ header {
   background: var(--nivel-0);
 }
 
+/* O único contorno do grid. O dia de hoje não ganha marca permanente: num
+   widget desse tamanho ela lê como "célula selecionada" e sugere um estado que
+   não existe. Quem quiser confirmar a data passa o mouse. */
 .cell:hover {
   outline: 1px solid var(--texto-forte);
-  outline-offset: 1px;
-}
-
-/* O contorno marca o dia de hoje mesmo quando ele ainda está apagado — é o
-   quadrado que a pessoa quer ver acender. */
-.today {
-  outline: 1px solid var(--texto);
   outline-offset: 1px;
 }
 

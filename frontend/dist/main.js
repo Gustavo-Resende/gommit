@@ -111,6 +111,9 @@ function desenharGrid(snap) {
       cell.dataset.data = dia.date;
       cell.dataset.count = dia.count;
 
+      // A classe não pinta nada hoje (o grid não marca o dia atual de forma
+      // permanente, só no hover) — fica como gancho semântico para quem for
+      // estilizar depois. Quem guarda a célula para a animação é a variável.
       if (dia.date === hoje) {
         cell.classList.add("today");
         celulaDeHoje = cell;
